@@ -1,0 +1,16 @@
+{
+  "policy_id": "tool:session_status",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Get session status - observe level",
+
+  "resources": ["tool:session_status"],
+
+  "constraints": {
+    "parameters": {
+      "tool:session_status": {
+        "session_id": {"type": "string"}
+      }
+    }
+  }
+}

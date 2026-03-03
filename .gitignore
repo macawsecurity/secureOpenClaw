@@ -121,3 +121,14 @@ dist/protocol.schema.json
 
 # Synthing
 **/.stfolder/
+
+# MACAW Trust Layer - SecureOpenClaw
+# Keep macaw_lib/ as placeholder, ignore contents (populated by install.sh)
+macaw_lib/*
+!macaw_lib/.gitkeep
+.macaw/
+sidecar/keys/*.pem
+sidecar/keys/*.key
+sidecar/__pycache__/
+*.pem
+!policies/**

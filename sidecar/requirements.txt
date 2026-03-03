@@ -1,0 +1,12 @@
+# MACAW Sidecar Dependencies
+# These are installed automatically by install.sh
+
+# Core dependencies (minimal)
+httpx>=0.25.0      # HTTP client for callbacks to TypeScript
+pydantic>=2.5.0    # Request/response validation
+
+# Web framework
+fastapi>=0.104.0   # ASGI framework
+uvicorn>=0.24.0    # ASGI server (used by server.py)
+
+# MACAW Client wheel is installed by install.sh from macaw_lib/

@@ -1,0 +1,26 @@
+{
+  "policy_id": "tool:exec:wc",
+  "version": "1.0.0",
+  "extends": "tool:exec",
+  "description": "SafeBin wc - word/line/char count with pre-approved grant",
+
+  "resources": ["tool:exec:wc"],
+
+  "attestations": ["wc-grant"],
+
+  "constraints": {
+    "parameters": {
+      "tool:exec:wc": {
+        "input": {"type": "string", "required": true, "max_length": 100000},
+        "flags": {"type": "string", "allowed_values": ["-l", "-w", "-c", "-m"]}
+      }
+    },
+    "attestations": {
+      "wc-grant": {
+        "approval_criteria": "role:admin",
+        "time_to_live": 86400,
+        "one_time": false
+      }
+    }
+  }
+}

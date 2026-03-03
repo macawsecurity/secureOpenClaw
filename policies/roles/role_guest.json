@@ -1,0 +1,66 @@
+{
+  "policy_id": "role:guest",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Guest role - observe only, no mutations",
+
+  "resources": [
+    "tool:read",
+    "tool:web_search",
+    "tool:web_fetch",
+    "tool:memory_search",
+    "tool:memory_get",
+    "tool:sessions_list",
+    "tool:sessions_history",
+    "tool:session_status",
+    "tool:agents_list"
+  ],
+
+  "denied_resources": [
+    "tool:write",
+    "tool:edit",
+    "tool:apply_patch",
+    "tool:exec",
+    "tool:exec:**",
+    "tool:process",
+    "tool:message",
+    "tool:browser",
+    "tool:canvas",
+    "tool:image",
+    "tool:tts",
+    "tool:sessions_send",
+    "tool:sessions_spawn",
+    "tool:subagents",
+    "tool:cron",
+    "tool:gateway",
+    "tool:nodes",
+    "file:/etc/**",
+    "file:/root/**",
+    "file:**/.ssh/**"
+  ],
+
+  "constraints": {
+    "rate_limit": 10,
+    "parameters": {
+      "llm:**": {
+        "max_tokens": {"max": 500}
+      }
+    },
+    "denied_parameters": {
+      "llm:**": {
+        "prompt": [
+          "*you are now*",
+          "*act as*",
+          "*pretend to be*",
+          "*your new role*",
+          "*forget you are*",
+          "*you are no longer*",
+          "*change your persona*",
+          "*roleplay as*",
+          "*simulate being*",
+          "*behave as if you were*"
+        ]
+      }
+    }
+  }
+}

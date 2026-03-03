@@ -1,0 +1,16 @@
+{
+  "policy_id": "tool:web_search",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Search the web - observe level",
+
+  "resources": ["tool:web_search"],
+
+  "constraints": {
+    "parameters": {
+      "tool:web_search": {
+        "query": {"type": "string", "required": true, "max_length": 500}
+      }
+    }
+  }
+}

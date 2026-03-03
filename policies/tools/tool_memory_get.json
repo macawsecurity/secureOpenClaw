@@ -1,0 +1,16 @@
+{
+  "policy_id": "tool:memory_get",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Get memory items - observe level",
+
+  "resources": ["tool:memory_get"],
+
+  "constraints": {
+    "parameters": {
+      "tool:memory_get": {
+        "key": {"type": "string", "required": true}
+      }
+    }
+  }
+}

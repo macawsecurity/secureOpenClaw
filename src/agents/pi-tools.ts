@@ -56,6 +56,7 @@ import {
   resolveToolProfilePolicy,
 } from "./tool-policy.js";
 import { resolveWorkspaceRoot } from "./workspace-dir.js";
+import { wrapToolsWithMacaw } from "../macaw/index.js";
 
 function isOpenAIProvider(provider?: string) {
   const normalized = provider?.trim().toLowerCase();
@@ -550,5 +551,19 @@ export function createOpenClawCodingTools(options?: {
   // NOTE: Keep canonical (lowercase) tool names here.
   // pi-ai's Anthropic OAuth transport remaps tool names to Claude Code-style names
   // on the wire and maps them back for tool dispatch.
-  return withAbort;
+
+  // MACAW: Wrap all tools with policy enforcement
+  // This routes all tool invocations through the MACAW sidecar
+  const withMacaw = wrapToolsWithMacaw(withAbort, {
+    senderId: options?.senderId,
+    senderName: options?.senderName,
+    senderIsOwner: options?.senderIsOwner,
+    messageChannel: options?.messageProvider,
+    groupId: options?.groupId,
+    sessionKey: options?.sessionKey,
+    sessionId: options?.sessionId,
+    runId: options?.runId,
+  });
+
+  return withMacaw;
 }

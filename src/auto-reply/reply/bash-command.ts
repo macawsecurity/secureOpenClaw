@@ -6,6 +6,7 @@ import { killProcessTree } from "../../agents/shell-utils.js";
 import { isCommandFlagEnabled } from "../../config/commands.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { logVerbose } from "../../globals.js";
+import { invokeTool } from "../../macaw/bridge.js";
 import { clampInt } from "../../utils.js";
 import type { MsgContext } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
@@ -336,26 +337,41 @@ export async function handleBashChatCommand(params: {
     const timeoutSec = params.cfg.tools?.exec?.timeoutSec;
     const notifyOnExit = params.cfg.tools?.exec?.notifyOnExit;
     const notifyOnExitEmptySuccess = params.cfg.tools?.exec?.notifyOnExitEmptySuccess;
-    const execTool = createExecTool({
-      scopeKey: CHAT_BASH_SCOPE_KEY,
-      allowBackground: true,
-      timeoutSec,
-      sessionKey: params.sessionKey,
-      notifyOnExit,
-      notifyOnExitEmptySuccess,
-      elevated: {
-        enabled: params.elevated.enabled,
-        allowed: params.elevated.allowed,
-        defaultLevel: "on",
-      },
-    });
-    const result = await execTool.execute("chat-bash", {
+    // MACAW: Route bash execution through policy enforcement
+    const execParams = {
       command: commandText,
       background: shouldBackgroundImmediately,
       yieldMs: shouldBackgroundImmediately ? undefined : foregroundMs,
       timeout: timeoutSec,
       elevated: true,
+    };
+
+    const macawResult = await invokeTool({
+      tool: "exec",
+      params: execParams,
+      principal: {
+        userId: params.ctx.senderId ?? undefined,
+        channel: "chat-bash",
+        sessionKey: params.sessionKey,
+      },
     });
+
+    if (!macawResult.ok) {
+      // Policy denied or execution failed
+      return {
+        text: `❌ Bash command blocked: ${macawResult.message ?? macawResult.error ?? "Policy denied"}`,
+      };
+    }
+
+    const result = macawResult.result as {
+      details?: {
+        status?: string;
+        sessionId?: string;
+        startedAt?: number;
+        exitCode?: number;
+      };
+      content?: Array<{ text?: string }>;
+    };
 
     if (result.details?.status === "running") {
       const sessionId = result.details.sessionId;

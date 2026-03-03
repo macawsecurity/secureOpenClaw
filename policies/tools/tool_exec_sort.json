@@ -1,0 +1,26 @@
+{
+  "policy_id": "tool:exec:sort",
+  "version": "1.0.0",
+  "extends": "tool:exec",
+  "description": "SafeBin sort - line sorting with pre-approved grant",
+
+  "resources": ["tool:exec:sort"],
+
+  "attestations": ["sort-grant"],
+
+  "constraints": {
+    "parameters": {
+      "tool:exec:sort": {
+        "input": {"type": "string", "required": true, "max_length": 100000},
+        "flags": {"type": "string", "allowed_values": ["-r", "-n", "-u", "-k", "-t"]}
+      }
+    },
+    "attestations": {
+      "sort-grant": {
+        "approval_criteria": "role:admin",
+        "time_to_live": 86400,
+        "one_time": false
+      }
+    }
+  }
+}

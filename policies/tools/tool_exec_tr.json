@@ -1,0 +1,28 @@
+{
+  "policy_id": "tool:exec:tr",
+  "version": "1.0.0",
+  "extends": "tool:exec",
+  "description": "SafeBin tr - character translation with pre-approved grant",
+
+  "resources": ["tool:exec:tr"],
+
+  "attestations": ["tr-grant"],
+
+  "constraints": {
+    "parameters": {
+      "tool:exec:tr": {
+        "set1": {"type": "string", "required": true, "max_length": 256},
+        "set2": {"type": "string", "max_length": 256},
+        "input": {"type": "string", "max_length": 100000},
+        "flags": {"type": "string", "allowed_values": ["-d", "-s", "-c"]}
+      }
+    },
+    "attestations": {
+      "tr-grant": {
+        "approval_criteria": "role:admin",
+        "time_to_live": 86400,
+        "one_time": false
+      }
+    }
+  }
+}

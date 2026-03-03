@@ -1,12 +1,11 @@
 import { collectTextContentBlocks } from "../../agents/content-blocks.js";
-import { createOpenClawTools } from "../../agents/openclaw-tools.js";
 import type { SkillCommandSpec } from "../../agents/skills.js";
-import { applyOwnerOnlyToolPolicy } from "../../agents/tool-policy.js";
+import { invokeTool } from "../../macaw/bridge.js";
+import { setCurrentSkill } from "../../macaw/tool-wrapper.js";
 import { getChannelDock } from "../../channels/dock.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import { logVerbose } from "../../globals.js";
-import { generateSecureToken } from "../../infra/secure-random.js";
 import { resolveGatewayMessageChannel } from "../../utils/message-channel.js";
 import {
   listReservedChatSlashCommandNames,
@@ -199,33 +198,30 @@ export async function handleInlineActions(params: {
         resolveGatewayMessageChannel(ctx.Provider) ??
         undefined;
 
-      const tools = createOpenClawTools({
-        agentSessionKey: sessionKey,
-        agentChannel: channel,
-        agentAccountId: (ctx as { AccountId?: string }).AccountId,
-        agentTo: ctx.OriginatingTo ?? ctx.To,
-        agentThreadId: ctx.MessageThreadId ?? undefined,
-        agentDir,
-        workspaceDir,
-        config: cfg,
-      });
-      const authorizedTools = applyOwnerOnlyToolPolicy(tools, command.senderIsOwner);
-
-      const tool = authorizedTools.find((candidate) => candidate.name === dispatch.toolName);
-      if (!tool) {
-        typing.cleanup();
-        return { kind: "reply", reply: { text: `❌ Tool not available: ${dispatch.toolName}` } };
-      }
-
-      const toolCallId = `cmd_${generateSecureToken(8)}`;
+      // MACAW: Route through policy enforcement instead of direct tool.execute()
+      // This ensures all tool invocations go through MACAW for policy checks
       try {
-        const result = await tool.execute(toolCallId, {
-          command: rawArgs,
-          commandName: skillInvocation.command.name,
-          skillName: skillInvocation.command.skillName,
-          // oxlint-disable-next-line typescript/no-explicit-any
-        } as any);
-        const text = extractTextFromToolResult(result) ?? "✅ Done.";
+        const macawResult = await invokeTool({
+          tool: dispatch.toolName,
+          params: {
+            command: rawArgs,
+            commandName: skillInvocation.command.name,
+            skillName: skillInvocation.command.skillName,
+          },
+          principal: {
+            userId: command.senderId ?? undefined,
+            channel: channel,
+            sessionKey,
+          },
+        });
+
+        if (!macawResult.ok) {
+          typing.cleanup();
+          const errorMsg = macawResult.message ?? macawResult.error ?? "Tool blocked by policy";
+          return { kind: "reply", reply: { text: `❌ ${errorMsg}` } };
+        }
+
+        const text = extractTextFromToolResult(macawResult.result) ?? "✅ Done.";
         typing.cleanup();
         return { kind: "reply", reply: { text } };
       } catch (err) {
@@ -246,6 +242,10 @@ export async function handleInlineActions(params: {
     sessionCtx.BodyForAgent = rewrittenBody;
     sessionCtx.BodyStripped = rewrittenBody;
     cleanedBody = rewrittenBody;
+
+    // Set skill context for Path 2 (LLM-mediated skills)
+    // All tool calls during this turn will include this skill context
+    setCurrentSkill(skillInvocation.command.skillName);
   }
 
   const sendInlineReply = async (reply?: ReplyPayload) => {

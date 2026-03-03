@@ -1,0 +1,26 @@
+{
+  "policy_id": "tool:exec:jq",
+  "version": "1.0.0",
+  "extends": "tool:exec",
+  "description": "SafeBin jq - JSON processor with pre-approved grant",
+
+  "resources": ["tool:exec:jq"],
+
+  "attestations": ["jq-grant"],
+
+  "constraints": {
+    "parameters": {
+      "tool:exec:jq": {
+        "filter": {"type": "string", "required": true, "max_length": 2000},
+        "input": {"type": "string", "max_length": 100000}
+      }
+    },
+    "attestations": {
+      "jq-grant": {
+        "approval_criteria": "role:admin",
+        "time_to_live": 86400,
+        "one_time": false
+      }
+    }
+  }
+}

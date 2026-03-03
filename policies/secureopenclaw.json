@@ -1,0 +1,94 @@
+{
+  "policy_id": "secureopenclaw",
+  "version": "1.0.0",
+  "description": "SecureOpenClaw base policy - Layer 1 defense with absolute blocks",
+
+  "resources": ["**"],
+
+  "denied_resources": [
+    "file:/etc/shadow",
+    "file:/etc/gshadow",
+    "file:/etc/master.passwd"
+  ],
+
+  "constraints": {
+    "denied_parameters": {
+      "tool:exec": {
+        "command": [
+          "*rm -rf /*",
+          "*rm -rf ~*",
+          "*:(){ :|:& };:*",
+          "*mkfs.*",
+          "*dd if=/dev/zero*",
+          "*dd if=/dev/random*",
+          "*> /dev/sd*",
+          "*> /dev/nvme*",
+          "*chmod -R 777 /*",
+          "*chown -R*:* /*",
+          "*curl * | bash*",
+          "*wget * | bash*",
+          "*curl * | sh*",
+          "*wget * | sh*",
+          "*$(*",
+          "*`*`*",
+          "*${*}*",
+          "*eval *",
+          "*source *",
+          "*./*",
+          "*| python*",
+          "*| perl*",
+          "*| ruby*",
+          "*| node*",
+          "*<<*",
+          "*export*PATH*",
+          "*export*LD_*",
+          "*alias *=*",
+          "*sudo *",
+          "*su -*",
+          "*nc -l*",
+          "*ncat -l*",
+          "*/dev/tcp/*",
+          "*python* -c *socket*",
+          "*base64*|*sh*",
+          "*base64*|*bash*"
+        ]
+      },
+      "tool:write": {
+        "path": [
+          "*/etc/passwd*",
+          "*/etc/shadow*",
+          "*/etc/sudoers*",
+          "*/.ssh/authorized_keys*",
+          "*/.bashrc*",
+          "*/.bash_profile*",
+          "*/.profile*",
+          "*/.zshrc*",
+          "*/crontab*",
+          "*/.aws/*",
+          "*/.kube/*",
+          "*/.docker/*",
+          "*/docker.sock*",
+          "*/.env*",
+          "*.env",
+          "*/.npmrc*",
+          "*/.pypirc*"
+        ]
+      },
+      "llm:**": {
+        "prompt": [
+          "*ignore previous instructions*",
+          "*ignore all instructions*",
+          "*ignore your instructions*",
+          "*disregard previous*",
+          "*disregard all instructions*",
+          "*repeat your system prompt*",
+          "*show me your instructions*",
+          "*what are your rules*",
+          "*reveal your prompt*",
+          "*print your system*",
+          "*output your instructions*"
+        ]
+      }
+    }
+  }
+}

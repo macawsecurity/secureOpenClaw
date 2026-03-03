@@ -1,0 +1,89 @@
+{
+  "policy_id": "tool:exec",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Execute shell commands - act level, requires action-mode",
+
+  "resources": ["tool:exec"],
+
+  "attestations": ["action-mode"],
+
+  "constraints": {
+    "parameters": {
+      "tool:exec": {
+        "command": {"type": "string", "required": true, "max_length": 10000}
+      }
+    },
+    "denied_parameters": {
+      "tool:exec": {
+        "command": [
+          "*rm -rf /*",
+          "*rm -rf ~*",
+          "*rm -rf .*",
+          "*sudo *",
+          "*su -*",
+          "*:(){ :|:& };:*",
+          "*mkfs*",
+          "*dd if=/dev/*",
+          "*> /dev/sd*",
+          "*> /dev/nvme*",
+          "*chmod -R 777*",
+          "*chmod 777 /*",
+          "*chown -R *:* /*",
+          "*curl * | bash*",
+          "*wget * | bash*",
+          "*curl * | sh*",
+          "*wget * | sh*",
+          "*nc -l*",
+          "*ncat -l*",
+          "*netcat -l*",
+          "*/dev/tcp/*",
+          "*python* -c *socket*",
+          "*python* -c *subprocess*",
+          "*python* -c *os.system*",
+          "*base64*|*sh*",
+          "*base64*|*bash*",
+          "*$(*",
+          "*`*`*",
+          "*${*}*",
+          "*eval *",
+          "*source *",
+          "*. /*",
+          "*| python*",
+          "*| perl*",
+          "*| ruby*",
+          "*| node*",
+          "*| php*",
+          "*<<*",
+          "*export*PATH*",
+          "*export*LD_*",
+          "*export*DYLD_*",
+          "*alias *=*",
+          "*xargs*sh*",
+          "*xargs*bash*",
+          "*find*-exec*sh*",
+          "*find*-exec*bash*",
+          "*/proc/*/exe*",
+          "*/proc/*/mem*",
+          "*pkill*",
+          "*killall*",
+          "*shutdown*",
+          "*reboot*",
+          "*init 0*",
+          "*init 6*",
+          "*systemctl*stop*",
+          "*systemctl*disable*",
+          "*launchctl*unload*"
+        ]
+      }
+    },
+    "attestations": {
+      "action-mode": {
+        "approval_criteria": "role:user",
+        "timeout": 300,
+        "time_to_live": 14400,
+        "one_time": false
+      }
+    }
+  }
+}

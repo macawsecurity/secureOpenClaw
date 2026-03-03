@@ -1,0 +1,50 @@
+{
+  "policy_id": "tool:browser",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Browser automation - act level, requires action-mode",
+
+  "resources": ["tool:browser"],
+
+  "attestations": ["action-mode"],
+
+  "constraints": {
+    "parameters": {
+      "tool:browser": {
+        "action": {"type": "string", "required": true},
+        "url": {"type": "string", "max_length": 2048}
+      }
+    },
+    "denied_parameters": {
+      "tool:browser": {
+        "url": [
+          "*localhost*",
+          "*127.0.0.1*",
+          "*0.0.0.0*",
+          "*::1*",
+          "*[::1]*",
+          "*169.254.*",
+          "*169.254.169.254*",
+          "*metadata.google.internal*",
+          "*metadata.aws*",
+          "*192.168.*",
+          "*10.*",
+          "*172.16.*",
+          "*172.17.*",
+          "*kubernetes.default*",
+          "file://*",
+          "javascript:*",
+          "data:*"
+        ]
+      }
+    },
+    "attestations": {
+      "action-mode": {
+        "approval_criteria": "role:user",
+        "timeout": 300,
+        "time_to_live": 14400,
+        "one_time": false
+      }
+    }
+  }
+}

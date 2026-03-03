@@ -1,0 +1,16 @@
+{
+  "policy_id": "skill:trusted",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Trusted skill - pre-approved, no attestation required",
+
+  "resources": ["skill:**"],
+
+  "constraints": {
+    "denied_parameters": {
+      "tool:*": {
+        "path": ["*/etc/*", "*/.ssh/*", "*/.aws/*"]
+      }
+    }
+  }
+}

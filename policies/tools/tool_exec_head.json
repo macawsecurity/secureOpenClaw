@@ -1,0 +1,26 @@
+{
+  "policy_id": "tool:exec:head",
+  "version": "1.0.0",
+  "extends": "tool:exec",
+  "description": "SafeBin head - first N lines with pre-approved grant",
+
+  "resources": ["tool:exec:head"],
+
+  "attestations": ["head-grant"],
+
+  "constraints": {
+    "parameters": {
+      "tool:exec:head": {
+        "input": {"type": "string", "required": true, "max_length": 100000},
+        "lines": {"type": "integer", "min": 1, "max": 10000}
+      }
+    },
+    "attestations": {
+      "head-grant": {
+        "approval_criteria": "role:admin",
+        "time_to_live": 86400,
+        "one_time": false
+      }
+    }
+  }
+}

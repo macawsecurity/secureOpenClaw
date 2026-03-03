@@ -1,0 +1,8 @@
+{
+  "policy_id": "tool:sessions_list",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "List sessions - observe level",
+
+  "resources": ["tool:sessions_list"]
+}

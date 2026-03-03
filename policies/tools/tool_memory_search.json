@@ -1,0 +1,16 @@
+{
+  "policy_id": "tool:memory_search",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Search agent memory - observe level",
+
+  "resources": ["tool:memory_search"],
+
+  "constraints": {
+    "parameters": {
+      "tool:memory_search": {
+        "query": {"type": "string", "required": true}
+      }
+    }
+  }
+}

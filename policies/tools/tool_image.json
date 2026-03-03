@@ -1,0 +1,26 @@
+{
+  "policy_id": "tool:image",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Image generation - act level, requires action-mode",
+
+  "resources": ["tool:image"],
+
+  "attestations": ["action-mode"],
+
+  "constraints": {
+    "parameters": {
+      "tool:image": {
+        "prompt": {"type": "string", "required": true, "max_length": 2000}
+      }
+    },
+    "attestations": {
+      "action-mode": {
+        "approval_criteria": "role:user",
+        "timeout": 300,
+        "time_to_live": 14400,
+        "one_time": false
+      }
+    }
+  }
+}

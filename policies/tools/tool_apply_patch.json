@@ -1,0 +1,43 @@
+{
+  "policy_id": "tool:apply_patch",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Apply patches - act level, requires action-mode",
+
+  "resources": ["tool:apply_patch"],
+
+  "attestations": ["action-mode"],
+
+  "constraints": {
+    "parameters": {
+      "tool:apply_patch": {
+        "patch": {"type": "string", "required": true, "max_length": 1000000},
+        "path": {"type": "string", "max_length": 4096}
+      }
+    },
+    "denied_parameters": {
+      "tool:apply_patch": {
+        "path": [
+          "*/etc/*",
+          "*/.ssh/*",
+          "*/.bashrc*",
+          "*/.profile*",
+          "*/.aws/*",
+          "*/.kube/*",
+          "*/.env*",
+          "*/../../../*",
+          "*/bin/*",
+          "*/sbin/*"
+        ]
+      }
+    },
+    "attestations": {
+      "action-mode": {
+        "approval_criteria": "role:user",
+        "timeout": 300,
+        "time_to_live": 14400,
+        "one_time": false
+      }
+    }
+  }
+}

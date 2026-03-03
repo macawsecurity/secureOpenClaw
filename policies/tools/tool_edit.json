@@ -1,0 +1,52 @@
+{
+  "policy_id": "tool:edit",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Edit file contents - act level, requires action-mode",
+
+  "resources": ["tool:edit"],
+
+  "attestations": ["action-mode"],
+
+  "constraints": {
+    "parameters": {
+      "tool:edit": {
+        "path": {"type": "string", "required": true, "max_length": 4096},
+        "old_string": {"type": "string", "max_length": 100000},
+        "new_string": {"type": "string", "max_length": 100000}
+      }
+    },
+    "denied_parameters": {
+      "tool:edit": {
+        "path": [
+          "*/etc/*",
+          "*/.ssh/*",
+          "*/.gnupg/*",
+          "*/.bashrc*",
+          "*/.bash_profile*",
+          "*/.profile*",
+          "*/.zshrc*",
+          "*/.zprofile*",
+          "*/.aws/*",
+          "*/.kube/*",
+          "*/.docker/*",
+          "*/.env*",
+          "*.env",
+          "*/../../../*",
+          "*/bin/*",
+          "*/sbin/*",
+          "*.plist",
+          "*LaunchAgents*"
+        ]
+      }
+    },
+    "attestations": {
+      "action-mode": {
+        "approval_criteria": "role:user",
+        "timeout": 300,
+        "time_to_live": 14400,
+        "one_time": false
+      }
+    }
+  }
+}

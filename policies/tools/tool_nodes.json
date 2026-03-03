@@ -1,0 +1,28 @@
+{
+  "policy_id": "tool:nodes",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Infrastructure node management - transact level, requires transact-mode",
+
+  "resources": ["tool:nodes"],
+
+  "attestations": ["transact-mode"],
+
+  "constraints": {
+    "parameters": {
+      "tool:nodes": {
+        "action": {"type": "string", "required": true, "allowed_values": ["list", "create", "delete", "start", "stop", "restart", "scale"]},
+        "node_id": {"type": "string"},
+        "count": {"type": "integer", "min": 1, "max": 100}
+      }
+    },
+    "attestations": {
+      "transact-mode": {
+        "approval_criteria": "role:owner",
+        "timeout": 300,
+        "time_to_live": 3600,
+        "one_time": true
+      }
+    }
+  }
+}

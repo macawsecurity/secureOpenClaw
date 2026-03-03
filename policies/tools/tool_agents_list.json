@@ -1,0 +1,8 @@
+{
+  "policy_id": "tool:agents_list",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "List agents - observe level",
+
+  "resources": ["tool:agents_list"]
+}

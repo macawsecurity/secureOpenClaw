@@ -1,0 +1,60 @@
+{
+  "policy_id": "tool:write",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Write file contents - act level, requires action-mode",
+
+  "resources": ["tool:write"],
+
+  "attestations": ["action-mode"],
+
+  "constraints": {
+    "parameters": {
+      "tool:write": {
+        "path": {"type": "string", "required": true, "max_length": 4096},
+        "content": {"type": "string", "required": true, "max_length": 10000000}
+      }
+    },
+    "denied_parameters": {
+      "tool:write": {
+        "path": [
+          "*/etc/*",
+          "*/.ssh/*",
+          "*/.gnupg/*",
+          "*/.bashrc*",
+          "*/.bash_profile*",
+          "*/.profile*",
+          "*/.zshrc*",
+          "*/.zprofile*",
+          "*/crontab*",
+          "*/.aws/*",
+          "*/.kube/*",
+          "*/.docker/*",
+          "*/.env*",
+          "*.env",
+          "*/.npmrc*",
+          "*/.pypirc*",
+          "*/.netrc*",
+          "*/.gitconfig*",
+          "*/../../../*",
+          "*../*../*",
+          "*/bin/*",
+          "*/sbin/*",
+          "*/usr/bin/*",
+          "*/usr/sbin/*",
+          "*.plist",
+          "*LaunchAgents*",
+          "*LaunchDaemons*"
+        ]
+      }
+    },
+    "attestations": {
+      "action-mode": {
+        "approval_criteria": "role:user",
+        "timeout": 300,
+        "time_to_live": 14400,
+        "one_time": false
+      }
+    }
+  }
+}

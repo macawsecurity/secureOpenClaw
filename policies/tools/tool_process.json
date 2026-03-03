@@ -1,0 +1,26 @@
+{
+  "policy_id": "tool:process",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Process management - act level, requires action-mode",
+
+  "resources": ["tool:process"],
+
+  "attestations": ["action-mode"],
+
+  "constraints": {
+    "parameters": {
+      "tool:process": {
+        "action": {"type": "string", "required": true, "allowed_values": ["list", "kill", "info"]}
+      }
+    },
+    "attestations": {
+      "action-mode": {
+        "approval_criteria": "role:user",
+        "timeout": 300,
+        "time_to_live": 14400,
+        "one_time": false
+      }
+    }
+  }
+}

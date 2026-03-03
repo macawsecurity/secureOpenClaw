@@ -1,0 +1,26 @@
+{
+  "policy_id": "tool:exec:uniq",
+  "version": "1.0.0",
+  "extends": "tool:exec",
+  "description": "SafeBin uniq - duplicate filtering with pre-approved grant",
+
+  "resources": ["tool:exec:uniq"],
+
+  "attestations": ["uniq-grant"],
+
+  "constraints": {
+    "parameters": {
+      "tool:exec:uniq": {
+        "input": {"type": "string", "required": true, "max_length": 100000},
+        "flags": {"type": "string", "allowed_values": ["-c", "-d", "-u", "-i"]}
+      }
+    },
+    "attestations": {
+      "uniq-grant": {
+        "approval_criteria": "role:admin",
+        "time_to_live": 86400,
+        "one_time": false
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "policy_id": "tool:subagents",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Manage subagents - act level, requires action-mode",
+
+  "resources": ["tool:subagents"],
+
+  "attestations": ["action-mode"],
+
+  "constraints": {
+    "parameters": {
+      "tool:subagents": {
+        "action": {"type": "string", "required": true, "allowed_values": ["list", "create", "delete", "invoke"]},
+        "max_concurrent": {"type": "integer", "max": 10},
+        "timeout": {"type": "integer", "max": 300}
+      }
+    },
+    "attestations": {
+      "action-mode": {
+        "approval_criteria": "role:user",
+        "timeout": 300,
+        "time_to_live": 14400,
+        "one_time": false
+      }
+    }
+  }
+}

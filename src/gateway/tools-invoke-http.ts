@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { createOpenClawTools } from "../agents/openclaw-tools.js";
+import { invokeTool } from "../macaw/bridge.js";
 import {
   resolveEffectiveToolPolicy,
   resolveGroupToolPolicy,
@@ -315,9 +316,31 @@ export async function handleToolsInvokeHttpRequest(
       action,
       args,
     });
-    // oxlint-disable-next-line typescript/no-explicit-any
-    const result = await (tool as any).execute?.(`http-${Date.now()}`, toolArgs);
-    sendJson(res, 200, { ok: true, result });
+
+    // MACAW: Route through policy enforcement
+    const macawResult = await invokeTool({
+      tool: toolName,
+      params: toolArgs as Record<string, unknown>,
+      principal: {
+        userId: authResult.user ?? undefined,
+        channel: "http-api",
+        sessionKey,
+      },
+    });
+
+    if (!macawResult.ok) {
+      const statusCode = macawResult.error === "policy_denied" ? 403 : 500;
+      sendJson(res, statusCode, {
+        ok: false,
+        error: {
+          type: macawResult.error ?? "tool_error",
+          message: macawResult.message ?? "Tool execution blocked by policy",
+        },
+      });
+      return true;
+    }
+
+    sendJson(res, 200, { ok: true, result: macawResult.result });
   } catch (err) {
     const inputStatus = resolveToolInputErrorStatus(err);
     if (inputStatus !== null) {

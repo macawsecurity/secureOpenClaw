@@ -1,0 +1,27 @@
+{
+  "policy_id": "tool:message",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Send messages - act level, requires action-mode",
+
+  "resources": ["tool:message"],
+
+  "attestations": ["action-mode"],
+
+  "constraints": {
+    "parameters": {
+      "tool:message": {
+        "recipient": {"type": "string", "required": true},
+        "content": {"type": "string", "required": true, "max_length": 10000}
+      }
+    },
+    "attestations": {
+      "action-mode": {
+        "approval_criteria": "role:user",
+        "timeout": 300,
+        "time_to_live": 14400,
+        "one_time": false
+      }
+    }
+  }
+}

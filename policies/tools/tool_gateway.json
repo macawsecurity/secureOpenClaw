@@ -1,0 +1,28 @@
+{
+  "policy_id": "tool:gateway",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "API gateway management - transact level, requires transact-mode",
+
+  "resources": ["tool:gateway"],
+
+  "attestations": ["transact-mode"],
+
+  "constraints": {
+    "parameters": {
+      "tool:gateway": {
+        "action": {"type": "string", "required": true, "allowed_values": ["list", "create", "delete", "update", "enable", "disable"]},
+        "endpoint": {"type": "string", "max_length": 500},
+        "method": {"type": "string", "allowed_values": ["GET", "POST", "PUT", "DELETE", "PATCH"]}
+      }
+    },
+    "attestations": {
+      "transact-mode": {
+        "approval_criteria": "role:owner",
+        "timeout": 300,
+        "time_to_live": 3600,
+        "one_time": true
+      }
+    }
+  }
+}

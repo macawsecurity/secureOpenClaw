@@ -1,0 +1,27 @@
+{
+  "policy_id": "tool:sessions_send",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Send to sessions - act level, requires action-mode",
+
+  "resources": ["tool:sessions_send"],
+
+  "attestations": ["action-mode"],
+
+  "constraints": {
+    "parameters": {
+      "tool:sessions_send": {
+        "session_id": {"type": "string", "required": true},
+        "message": {"type": "string", "required": true}
+      }
+    },
+    "attestations": {
+      "action-mode": {
+        "approval_criteria": "role:user",
+        "timeout": 300,
+        "time_to_live": 14400,
+        "one_time": false
+      }
+    }
+  }
+}

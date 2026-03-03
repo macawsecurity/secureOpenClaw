@@ -1,0 +1,27 @@
+{
+  "policy_id": "skill:base",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Unknown skill catch-all - requires admin approval each invocation",
+
+  "resources": ["skill:*"],
+
+  "attestations": ["skill-admin-approval"],
+
+  "constraints": {
+    "denied_parameters": {
+      "tool:*": {
+        "path": ["*/etc/*", "*/.ssh/*", "*/.aws/*", "*/.env*"],
+        "command": ["*rm -rf*", "*sudo*", "*curl*|*bash*"]
+      }
+    },
+    "attestations": {
+      "skill-admin-approval": {
+        "approval_criteria": "role:admin",
+        "timeout": 300,
+        "time_to_live": 0,
+        "one_time": true
+      }
+    }
+  }
+}

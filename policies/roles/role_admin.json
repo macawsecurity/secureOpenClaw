@@ -1,0 +1,10 @@
+{
+  "policy_id": "role:admin",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Admin role - full access, no attestations required",
+
+  "resources": ["**"],
+
+  "denied_resources": []
+}

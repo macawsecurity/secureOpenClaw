@@ -1,0 +1,49 @@
+{
+  "policy_id": "tool:web_fetch",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Fetch URL content - observe level",
+
+  "resources": ["tool:web_fetch"],
+
+  "constraints": {
+    "parameters": {
+      "tool:web_fetch": {
+        "url": {"type": "string", "required": true, "max_length": 2048}
+      }
+    },
+    "denied_parameters": {
+      "tool:web_fetch": {
+        "url": [
+          "*localhost*",
+          "*127.0.0.1*",
+          "*0.0.0.0*",
+          "*::1*",
+          "*[::1]*",
+          "*169.254.*",
+          "*169.254.169.254*",
+          "*metadata.google.internal*",
+          "*metadata.aws*",
+          "*100.100.100.200*",
+          "*192.168.*",
+          "*10.*",
+          "*172.16.*",
+          "*172.17.*",
+          "*172.18.*",
+          "*172.19.*",
+          "*172.2?.*",
+          "*172.30.*",
+          "*172.31.*",
+          "*kubernetes.default*",
+          "*kube-system*",
+          "file://*",
+          "ftp://*",
+          "sftp://*",
+          "gopher://*",
+          "dict://*",
+          "ldap://*"
+        ]
+      }
+    }
+  }
+}

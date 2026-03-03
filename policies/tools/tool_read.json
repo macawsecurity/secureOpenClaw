@@ -1,0 +1,48 @@
+{
+  "policy_id": "tool:read",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Read file contents - observe level",
+
+  "resources": ["tool:read"],
+
+  "constraints": {
+    "parameters": {
+      "tool:read": {
+        "path": {"type": "string", "required": true, "max_length": 4096}
+      }
+    },
+    "denied_parameters": {
+      "tool:read": {
+        "path": [
+          "*/etc/shadow*",
+          "*/etc/gshadow*",
+          "*/etc/master.passwd*",
+          "*/.ssh/id_*",
+          "*/.ssh/config*",
+          "*/.gnupg/*",
+          "*/.aws/*",
+          "*/.kube/*",
+          "*/.docker/config.json*",
+          "*/docker.sock*",
+          "*/.env*",
+          "*.env",
+          "*/.git/config*",
+          "*/.gitconfig*",
+          "*/.npmrc*",
+          "*/.pypirc*",
+          "*/.netrc*",
+          "*_history",
+          "*.history",
+          "*/.bash_history*",
+          "*/.zsh_history*",
+          "*/Keychain/*",
+          "*/../../../*",
+          "*../*../*",
+          "*/proc/*/environ*",
+          "*/proc/*/cmdline*"
+        ]
+      }
+    }
+  }
+}

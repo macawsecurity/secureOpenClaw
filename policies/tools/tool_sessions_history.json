@@ -1,0 +1,16 @@
+{
+  "policy_id": "tool:sessions_history",
+  "version": "1.0.0",
+  "extends": "secureopenclaw",
+  "description": "Get session history - observe level",
+
+  "resources": ["tool:sessions_history"],
+
+  "constraints": {
+    "parameters": {
+      "tool:sessions_history": {
+        "session_id": {"type": "string"}
+      }
+    }
+  }
+}
