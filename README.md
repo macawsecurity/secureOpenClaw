@@ -1,6 +1,18 @@
-# SecureOpenClaw
+<p align="center">
+  <img src="https://www.macawsecurity.ai/favicon-real.png" alt="MACAW" width="80">
+</p>
 
-Secure version of OpenClaw using the MACAW trust layer.
+<h1 align="center">SecureOpenClaw</h1>
+
+<p align="center">
+  <a href="https://github.com/macawsecurity/secureOpenClaw/blob/main/LICENSE"><img src="https://img.shields.io/badge/OpenClaw-MIT-blue.svg" alt="MIT License"></a>
+  <a href="https://github.com/macawsecurity/secureOpenClaw/blob/main/LICENSE-MACAW"><img src="https://img.shields.io/badge/MACAW-Apache%202.0-blue.svg" alt="Apache 2.0"></a>
+  <a href="https://console.macawsecurity.ai"><img src="https://img.shields.io/badge/Console-Free%20Tier-green.svg" alt="Free Tier"></a>
+</p>
+
+<p align="center">
+  Secure version of OpenClaw using the MACAW trust layer.
+</p>
 
 Every compute paradigm scaled on a foundation of trust — mainframes had Kerberos,
 microservices got mTLS, agents need MACAW. Deterministic controls, zero-trust
