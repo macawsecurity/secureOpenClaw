@@ -73,6 +73,33 @@ registered_tools: Dict[str, bool] = {}
 secure_openai: Optional[Any] = None
 secure_anthropic: Optional[Any] = None
 
+# User client cache - deterministic identity: userId@channel
+user_clients: Dict[str, Any] = {}
+
+
+def get_user_client(principal: Optional["Principal"]) -> Any:
+    """Get or create MACAWClient for user. Returns service client if no principal."""
+    global macaw_client
+
+    if not principal or not principal.userId:
+        return macaw_client  # Fallback to service identity
+
+    user_id = principal.userId
+    channel = principal.channel or "cli"
+    key = f"{user_id}@{channel}"
+
+    if key not in user_clients:
+        # Create user client with deterministic identity (user_id@channel)
+        # Don't use agent_type="user" as it requires iam_token authentication
+        user_clients[key] = MACAWClient(
+            user_name=user_id,
+            app_name=channel
+        )
+        user_clients[key].register()
+        logger.info(f"Created user client: {key}")
+
+    return user_clients[key]
+
 
 # Request/Response models
 class Principal(BaseModel):
@@ -251,12 +278,12 @@ def init_llm_adapters() -> None:
                       "Install with: pip install -e /path/to/secureAI")
         return
 
-    # Initialize OpenAI adapter
+    # Initialize OpenAI adapter with distinct identity
     openai_key = os.getenv("OPENAI_API_KEY")
     if openai_key:
         try:
             secure_openai = SecureOpenAI(
-                app_name=MACAW_APP_NAME,
+                app_name="secure-openai",  # Distinct identity in activity graph
                 api_key=openai_key
             )
             logger.info("SecureOpenAI adapter initialized")
@@ -265,12 +292,12 @@ def init_llm_adapters() -> None:
     else:
         logger.info("OPENAI_API_KEY not set - OpenAI proxy disabled")
 
-    # Initialize Anthropic adapter
+    # Initialize Anthropic adapter with distinct identity
     anthropic_key = os.getenv("ANTHROPIC_API_KEY")
     if anthropic_key:
         try:
             secure_anthropic = SecureAnthropic(
-                app_name=MACAW_APP_NAME,
+                app_name="secure-anthropic",  # Distinct identity in activity graph
                 api_key=anthropic_key
             )
             logger.info("SecureAnthropic adapter initialized")
@@ -416,11 +443,12 @@ async def invoke_tool(request: InvokeRequest):
             logger.debug(f"Using intent_policy: {intent_policy}")
 
         # Call MACAW for policy enforcement + execution
-        # intent_policy is passed per-invocation, triggering extends resolution in PolicyResolver
-        result = macaw_client.invoke_tool(
+        # Use user_client for proper identity propagation (user → service → tool)
+        user_client = get_user_client(request.principal)
+        result = user_client.invoke_tool(
             tool_name=tool_name,
             parameters=params,
-            target_agent=macaw_client.agent_id,
+            target_agent=macaw_client.agent_id,  # Route to openclaw's registered tools
             intent_policy=intent_policy
         )
 
@@ -499,13 +527,15 @@ class ChatCompletionRequest(BaseModel):
     user: Optional[str] = None
     tools: Optional[List[Dict[str, Any]]] = None
     tool_choice: Optional[Any] = None
+    principal: Optional[Principal] = None  # User identity for MACAW
 
 
-async def stream_openai_response(params: dict) -> AsyncGenerator[str, None]:
+async def stream_openai_response(params: dict, client: Any = None) -> AsyncGenerator[str, None]:
     """Stream OpenAI response as Server-Sent Events."""
     try:
-        # Call SecureOpenAI with streaming
-        stream = secure_openai.chat.completions.create(**params)
+        # Call SecureOpenAI with streaming (use bound client if provided)
+        openai_client = client or secure_openai
+        stream = openai_client.chat.completions.create(**params)
 
         for chunk in stream:
             # Convert chunk to dict if it has model_dump
@@ -544,13 +574,20 @@ async def proxy_openai_chat(request: ChatCompletionRequest):
         # Convert request to dict, excluding None values
         params = request.dict(exclude_none=True)
 
+        # Remove principal from params (not passed to OpenAI)
+        principal = params.pop('principal', None)
+
         logger.debug(f"OpenAI proxy request: model={params.get('model')}, "
                     f"stream={params.get('stream', False)}")
+
+        # Get user-bound client for identity propagation
+        user_client = get_user_client(request.principal)
+        bound_openai = secure_openai.bind_to_user(user_client)
 
         if params.get('stream', False):
             # Streaming response
             return StreamingResponse(
-                stream_openai_response(params),
+                stream_openai_response(params, bound_openai),
                 media_type="text/event-stream",
                 headers={
                     "Cache-Control": "no-cache",
@@ -559,7 +596,7 @@ async def proxy_openai_chat(request: ChatCompletionRequest):
             )
         else:
             # Non-streaming response
-            result = secure_openai.chat.completions.create(**params)
+            result = bound_openai.chat.completions.create(**params)
 
             # Convert to dict for JSON response
             if hasattr(result, 'model_dump'):
@@ -590,13 +627,15 @@ class AnthropicMessageRequest(BaseModel):
     stop_sequences: Optional[List[str]] = None
     tools: Optional[List[Dict[str, Any]]] = None
     tool_choice: Optional[Dict[str, Any]] = None
+    principal: Optional[Principal] = None  # User identity for MACAW
 
 
-async def stream_anthropic_response(params: dict) -> AsyncGenerator[str, None]:
+async def stream_anthropic_response(params: dict, client: Any = None) -> AsyncGenerator[str, None]:
     """Stream Anthropic response as Server-Sent Events."""
     try:
-        # Call SecureAnthropic with streaming
-        stream = secure_anthropic.messages.create(**params)
+        # Call SecureAnthropic with streaming (use bound client if provided)
+        anthropic_client = client or secure_anthropic
+        stream = anthropic_client.messages.create(**params)
 
         for chunk in stream:
             # Convert chunk to dict if it has model_dump
@@ -635,13 +674,20 @@ async def proxy_anthropic_messages(request: AnthropicMessageRequest):
         # Convert request to dict, excluding None values
         params = request.dict(exclude_none=True)
 
+        # Remove principal from params (not passed to Anthropic)
+        principal = params.pop('principal', None)
+
         logger.debug(f"Anthropic proxy request: model={params.get('model')}, "
                     f"stream={params.get('stream', False)}")
+
+        # Get user-bound client for identity propagation
+        user_client = get_user_client(request.principal)
+        bound_anthropic = secure_anthropic.bind_to_user(user_client)
 
         if params.get('stream', False):
             # Streaming response
             return StreamingResponse(
-                stream_anthropic_response(params),
+                stream_anthropic_response(params, bound_anthropic),
                 media_type="text/event-stream",
                 headers={
                     "Cache-Control": "no-cache",
@@ -650,7 +696,7 @@ async def proxy_anthropic_messages(request: AnthropicMessageRequest):
             )
         else:
             # Non-streaming response
-            result = secure_anthropic.messages.create(**params)
+            result = bound_anthropic.messages.create(**params)
 
             # Convert to dict for JSON response
             if hasattr(result, 'model_dump'):
