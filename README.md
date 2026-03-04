@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/macaw-logo.svg" alt="MACAW" width="80">
+  <img src="docs/assets/secureOpenClaw.png" alt="SecureOpenClaw" width="120">
 </p>
 
 <h1 align="center">SecureOpenClaw</h1>
