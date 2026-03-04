@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://www.macawsecurity.ai/favicon-real.png" alt="MACAW" width="80">
+  <img src="docs/assets/macaw-logo.svg" alt="MACAW" width="80">
 </p>
 
 <h1 align="center">SecureOpenClaw</h1>
