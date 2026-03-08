@@ -118,7 +118,7 @@ guide_download() {
 # Get zip file path from user
 get_zip_path() {
     while true; do
-        read -p "   Path to downloaded zip: " ZIP_PATH
+        read -p "   Full path to downloaded zip file: " ZIP_PATH
 
         # Clean up path (remove quotes, trailing spaces, handle drag & drop escaping)
         ZIP_PATH=$(echo "$ZIP_PATH" | tr -d "'\"\\" | xargs)
@@ -255,6 +255,34 @@ EOF
     print_success "Pre-commit hook installed"
 }
 
+# Set up environment: shell profile export + ./openclaw wrapper
+setup_environment() {
+    print_step "Setting up environment..."
+
+    MACAW_HOME_EXPORT="export MACAW_HOME=\"$MACAW_LIB_DIR\""
+
+    for RC in "$HOME/.bashrc" "$HOME/.zshrc"; do
+        if [ -f "$RC" ]; then
+            if grep -q "MACAW_HOME" "$RC"; then
+                print_success "MACAW_HOME already in $RC"
+            else
+                echo "" >> "$RC"
+                echo "# Added by SecureOpenClaw install.sh" >> "$RC"
+                echo "$MACAW_HOME_EXPORT" >> "$RC"
+                print_success "MACAW_HOME added to $RC"
+            fi
+        fi
+    done
+
+    # Create ./openclaw wrapper
+    cat > "$SCRIPT_DIR/openclaw" << 'EOF'
+#!/bin/bash
+exec node "$(dirname "$0")/dist/index.js" "$@"
+EOF
+    chmod +x "$SCRIPT_DIR/openclaw"
+    print_success "./openclaw wrapper created"
+}
+
 # Print completion message
 print_completion() {
     echo ""
@@ -281,6 +309,7 @@ main() {
     get_zip_path
     install_macaw
     install_precommit_hook
+    setup_environment
     print_completion
 }
 

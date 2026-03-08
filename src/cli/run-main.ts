@@ -19,6 +19,9 @@ import { normalizeWindowsArgv } from "./windows-argv.js";
 
 // MACAW: Resolve project root directory (where macaw_lib should be)
 function getProjectRoot(): string {
+  if (process.env.MACAW_HOME) {
+    return dirname(process.env.MACAW_HOME);
+  }
   const currentFile = fileURLToPath(import.meta.url);
   // Go up from src/cli/run-main.ts to project root
   return dirname(dirname(dirname(currentFile)));
@@ -98,7 +101,7 @@ async function initializeMacawWithSidecar(): Promise<{
   error?: string;
 }> {
   // Check if MACAW is installed
-  const { installed, macawLibDir, configPath } = isMacawInstalled();
+  const { installed, macawLibDir } = isMacawInstalled();
   if (!installed) {
     return {
       ready: false,
